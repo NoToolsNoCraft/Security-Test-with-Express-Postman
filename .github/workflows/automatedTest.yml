@@ -33,7 +33,6 @@ jobs:
       - name: Run Postman tests
         uses: actions/postman/run-postman-action@v2
         with:
-          collection: path/to/your/postman_collection.json
-          environment: path/to/your/postman_environment.json
+          collection: Postman/Security Test.postman_collection.json.
         env:
           POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}  # Set Postman API key from GitHub secrets
