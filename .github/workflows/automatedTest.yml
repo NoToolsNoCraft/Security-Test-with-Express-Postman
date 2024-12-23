@@ -2,6 +2,9 @@ name: Express App Test Workflow
 
 on:
   push:
+    schedule:
+      # Runs daily at 9:00 AM CET
+      - cron: "0 8 * * *"
     branches:
       - main
 
