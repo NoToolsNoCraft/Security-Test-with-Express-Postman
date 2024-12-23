@@ -14,52 +14,70 @@ The workflow runs automated tests on an Express API using Postman collections. W
 
 The **Express app** (`app.js`) provides a set of endpoints that are tested by the Postman collection. Below is an overview of the routes defined in the Express app and their corresponding Postman tests:
 
-### 1. **POST /users**
-   - **Purpose**: Creates a new user.
+### 1. **GET  http://localhost:3001/**
+   - **Purpose**: Retrieve a list of all items currently available.
    - **Request Body**: 
-     ```json
-     {
-       "id": 4,
-       "username": "newUser",
-       "email": "newuser@example.com",
-       "role": "user",
-       "active": true
-     }
-     ```
-   - **Response**: 
-     ```json
-     {
-       "message": "User created successfully",
-       "data": {
-         "id": 4,
-         "username": "newUser",
-         "email": "newuser@example.com",
-         "role": "user",
-         "active": true
-       }
-     }
-     ```
-
-### 2. **GET /users**
-   - **Purpose**: Retrieves the list of all users.
+     No request body is used here. Instead, in the Header we have to add the "role" key and the "admin"value as a security measure.
    - **Response**: 
      ```json
      [
-       {
-         "id": 1,
-         "username": "existingUser",
-         "email": "existinguser@example.com",
-         "role": "admin",
-         "active": true
-       },
-       {
-         "id": 4,
-         "username": "newUser",
-         "email": "newuser@example.com",
-         "role": "user",
-         "active": true
-       }
-     ]
+    {
+        "id": 1,
+        "username": "adminUser",
+        "email": "admin@secure.com",
+        "password": "hashedPassword123",
+        "role": "admin",
+        "active": true
+    },
+    {
+        "id": 2,
+        "username": "regularUser",
+        "email": "user@secure.com",
+        "password": "hashedPassword456",
+        "role": "user",
+        "active": true
+    },
+    {
+        "id": 3,
+        "username": "guestUser",
+        "email": "guest@secure.com",
+        "password": "hashedPassword789",
+        "role": "guest",
+        "active": false
+    }
+]
+     ```
+   The initial response should match with the mock data that is set in the app.js Express file.
+   
+### 2. **POST http://localhost:3001/update**
+   - **Purpose**: Update a new item to the array
+   - **Request Body**:
+   ```json
+     [
+  {
+    "id": 4,
+    "username": "newUser",
+    "email": "newuser@example.com",
+    "role": "user",
+    "active": true
+  }
+]
+     ```
+
+   - **Response**: 
+     ```json
+  {
+    "message": "Users processed successfully",
+    "addedUsers": [
+        {
+            "id": 4,
+            "username": "newUser",
+            "email": "newuser@example.com",
+            "role": "user",
+            "active": true
+        }
+    ]
+}
      ```
 
 ### 3. **DELETE /users/:id**
