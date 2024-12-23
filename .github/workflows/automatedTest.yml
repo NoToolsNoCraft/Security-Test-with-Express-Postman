@@ -28,11 +28,15 @@ jobs:
       - name: Start Express app
         run: |
           nohup npm start & # Start the Express server in the background
+          sleep 10 # Wait for the server to start
 
-      # Run Postman tests
+      # Install Newman (Postman CLI)
+      - name: Install Newman
+        run: npm install -g newman
+
+      # Run Postman tests using Newman
       - name: Run Postman tests
-        uses: actions/postman/run-postman-action@v2
-        with:
-          collection: Postman/Security Test.postman_collection.json.
-        env:
-          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}  # Set Postman API key from GitHub secrets
+        run: |
+          newman run Postman/Security\ Test.postman_collection.json \
+            -e Postman/your_postman_environment.json \
+            --env-var "POSTMAN_API_KEY=${{ secrets.POSTMAN_API_KEY }}"
