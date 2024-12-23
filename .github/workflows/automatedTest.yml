@@ -38,5 +38,5 @@ jobs:
       - name: Run Postman tests
         run: |
           newman run Postman/Security\ Test.postman_collection.json \
-            -e Postman/your_postman_environment.json \
+            
             --env-var "POSTMAN_API_KEY=${{ secrets.POSTMAN_API_KEY }}"
