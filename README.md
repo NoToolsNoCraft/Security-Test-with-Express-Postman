@@ -1,88 +1,86 @@
 # Express App and Postman Test Workflow
 
-This repository contains an Express app and automated API tests using Postman and GitHub Actions. The purpose of this setup is to validate the functionality of an Express API by running Postman tests whenever changes are made to the `main` branch.
+This repository contains an **Express app** and an automated **API test suite** using **Postman** and **GitHub Actions**. The goal of this setup is to validate the functionality of an Express API by running Postman tests every time changes are made to the `main` branch of the repository.
 
 ## Overview
 
-The workflow runs automated tests on an Express API using Postman collections. When code is pushed to the `main` branch, the following steps are executed:
+The automated workflow performs the following steps whenever a commit is pushed to the `main` branch:
 
 1. **Setup Environment**: The repository is checked out, dependencies are installed, and the Express app is started.
-2. **Postman API Tests**: Postman tests are executed using **Newman**, the Postman CLI tool.
-3. **Test Results**: The results from the Postman tests are output, showing which requests were successful and which ones failed.
+2. **Run Postman Tests**: The Postman collection is executed using **Newman** (Postman's CLI tool).
+3. **Test Results**: The results from the Postman tests are shown in the GitHub Actions output, highlighting successful and failed requests.
 
 ## Express API Setup (`app.js`)
 
-The **Express app** (`app.js`) provides a set of endpoints that are tested by the Postman collection. Below is an overview of the routes defined in the Express app and their corresponding Postman tests:
+The **Express app** (`app.js`) exposes a set of API endpoints that are tested by the Postman collection. Below is a summary of these endpoints and their corresponding tests.
 
-### 1. **GET  http://localhost:3001/**
+### 1. **GET http://localhost:3001/**
    - **Purpose**: Retrieve a list of all items currently available.
-   - **Request Body**: 
-     No request body is used here. Instead, in the Header we have to add the "role" key and the "admin"value as a security measure.
-   - **Response**: 
+   - **Request Body**: None (but a "role" header with "admin" is required for security purposes).
+   - **Response**:
      ```json
      [
-    {
-        "id": 1,
-        "username": "adminUser",
-        "email": "admin@secure.com",
-        "password": "hashedPassword123",
-        "role": "admin",
-        "active": true
-    },
-    {
-        "id": 2,
-        "username": "regularUser",
-        "email": "user@secure.com",
-        "password": "hashedPassword456",
-        "role": "user",
-        "active": true
-    },
-    {
-        "id": 3,
-        "username": "guestUser",
-        "email": "guest@secure.com",
-        "password": "hashedPassword789",
-        "role": "guest",
-        "active": false
-    }
-]
-     ```
-   The initial response should match with the mock data that is set in the app.js Express file.
-   
-### 2. **POST http://localhost:3001/update**
-   - **Purpose**: Update a new item to the array
-   - **Request Body**:
-   ```json
-     [
-  {
-    "id": 4,
-    "username": "newUser",
-    "email": "newuser@example.com",
-    "role": "user",
-    "active": true
-  }
-]
-     ```
-
-   - **Response**: 
-     ```json
-  {
-    "message": "Users processed successfully",
-    "addedUsers": [
         {
-            "id": 4,
-            "username": "newUser",
-            "email": "newuser@example.com",
+            "id": 1,
+            "username": "adminUser",
+            "email": "admin@secure.com",
+            "password": "hashedPassword123",
+            "role": "admin",
+            "active": true
+        },
+        {
+            "id": 2,
+            "username": "regularUser",
+            "email": "user@secure.com",
+            "password": "hashedPassword456",
             "role": "user",
             "active": true
+        },
+        {
+            "id": 3,
+            "username": "guestUser",
+            "email": "guest@secure.com",
+            "password": "hashedPassword789",
+            "role": "guest",
+            "active": false
         }
-    ]
-}
+     ]
+     ```
+   The initial response matches mock data set within the `app.js` file.
+
+### 2. **POST http://localhost:3001/update**
+   - **Purpose**: Add a new item (user) to the list.
+   - **Request Body**:
+     ```json
+     [
+        {
+          "id": 4,
+          "username": "newUser",
+          "email": "newuser@example.com",
+          "role": "user",
+          "active": true
+        }
+     ]
+     ```
+   - **Response**:
+     ```json
+     {
+       "message": "Users processed successfully",
+       "addedUsers": [
+         {
+           "id": 4,
+           "username": "newUser",
+           "email": "newuser@example.com",
+           "role": "user",
+           "active": true
+         }
+       ]
+     }
      ```
 
 ### 3. **DELETE /users/:id**
-   - **Purpose**: Deletes a user by their ID.
-   - **Response**: 
+   - **Purpose**: Delete a user by their ID.
+   - **Response**:
      ```json
      {
        "message": "User deleted successfully",
@@ -98,34 +96,34 @@ The **Express app** (`app.js`) provides a set of endpoints that are tested by th
 
 ## Postman Test Collection
 
-The Postman test collection (`Security Test.postman_collection.json`) contains a series of requests that test the functionality of the Express API. Below are the key requests and how they map to the Express routes:
+The Postman test collection (`Security Test.postman_collection.json`) contains a series of requests to test the functionality of the Express API. Below are the key requests and how they map to the Express routes:
 
 ### 1. **POST /users**
-   - **Purpose**: Tests the `POST /users` route.
-   - **Test**: 
-     - A new user is created using the request body.
-     - The response is validated to ensure the user was created successfully. The `id`, `username`, `email`, and `role` must match the request.
-     - Status code 201 (Created) is expected.
+   - **Purpose**: Test the `POST /users` route.
+   - **Test Logic**:
+     - A new user is created using the provided request body.
+     - The response is validated to ensure the user was created successfully, checking for the `id`, `username`, `email`, `role`, and `active` properties.
+     - A successful status code `201` is expected.
 
 ### 2. **GET /users**
-   - **Purpose**: Tests the `GET /users` route.
-   - **Test**: 
-     - The response is validated to ensure that the user created in the previous step is present in the list of users.
-     - The `id`, `username`, `email`, `role`, and `active` properties should match the values from the `POST /users` request.
+   - **Purpose**: Test the `GET /users` route.
+   - **Test Logic**:
+     - The response is validated to ensure the newly created user appears in the list.
+     - The `id`, `username`, `email`, `role`, and `active` properties are checked.
 
 ### 3. **DELETE /users/:id**
-   - **Purpose**: Tests the `DELETE /users/:id` route.
-   - **Test**: 
-     - The newly created user is deleted.
-     - The response is validated to ensure the user is deleted and the correct message is returned.
-     - The `GET /users` route is run again to confirm that the user no longer exists.
+   - **Purpose**: Test the `DELETE /users/:id` route.
+   - **Test Logic**:
+     - The newly created user is deleted via the `DELETE` request.
+     - The response is validated to ensure that the user was successfully deleted.
+     - A subsequent `GET /users` request confirms that the user no longer exists.
 
 ## How the Postman Tests Work
 
 ### Step-by-Step Test Execution
 
 1. **Step 1: POST /users**
-   - A `POST` request is sent to create a new user with the following JSON body:
+   - A `POST` request is sent to create a new user:
      ```json
      {
        "id": 4,
@@ -135,20 +133,20 @@ The Postman test collection (`Security Test.postman_collection.json`) contains a
        "active": true
      }
      ```
-   - The test checks that the response status is `201` and that the response body contains the newly created user's data, including their `id`, `username`, `email`, `role`, and `active` status.
+   - The test verifies the response status is `201`, and checks that the returned user data matches the values sent in the request.
 
 2. **Step 2: GET /users**
-   - After creating the user, a `GET` request is sent to retrieve the list of all users.
-   - The test validates that the newly created user exists in the response and that all the properties (`id`, `username`, `email`, `role`, and `active`) match the values sent in the `POST` request.
+   - A `GET` request retrieves the list of all users.
+   - The test confirms the new user is listed, checking that the properties (`id`, `username`, `email`, `role`, and `active`) match the values provided in the previous `POST` request.
 
 3. **Step 3: DELETE /users/:id**
-   - A `DELETE` request is sent to delete the user with the specified `id` (in this case, `4`).
-   - The test checks that the response contains a success message and the deleted user’s data.
-   - A final `GET /users` request is sent to confirm that the user has been removed from the list.
+   - A `DELETE` request deletes the user with ID `4`.
+   - The test confirms that the response contains the correct success message and the user data.
+   - A final `GET /users` request ensures the user no longer appears in the list.
 
 ## Running the Tests Locally
 
-You can run the Postman tests locally using **Newman**:
+To run the Postman tests locally, you can use **Newman**, Postman's command-line tool:
 
 1. Install Newman globally using npm:
    ```bash
