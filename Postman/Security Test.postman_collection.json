@@ -1,0 +1,386 @@
+{
+	"info": {
+		"_postman_id": "4ba7d4ad-7dd3-494b-a3e5-b571958400c0",
+		"name": "Security Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35095642"
+	},
+	"item": [
+		{
+			"name": "Initial request / Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test if the status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Test if the role is 'admin'\r",
+							"pm.test(\"Role is admin\", function () {\r",
+							"    pm.request.headers.each(function (header) {\r",
+							"        if (header.key === 'role') {\r",
+							"            pm.expect(header.value).to.eql('admin');\r",
+							"        }\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// Test if all initial users are present\r",
+							"pm.test(\"Initial users are present\", function () {\r",
+							"    const users = pm.response.json();\r",
+							"    pm.expect(users.length).to.eql(3); // There should be 3 users\r",
+							"    pm.expect(users[0].username).to.eql(\"adminUser\");\r",
+							"    pm.expect(users[1].username).to.eql(\"regularUser\");\r",
+							"    pm.expect(users[2].username).to.eql(\"guestUser\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "role",
+						"value": "admin",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3001/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						""
+					],
+					"query": [
+						{
+							"key": "role",
+							"value": "admin",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add a new item",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test if the status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Test if the message indicates users were processed successfully\r",
+							"pm.test(\"Users processed successfully message\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.message).to.eql(\"Users processed successfully\");\r",
+							"});\r",
+							"\r",
+							"// Test if the new user was added\r",
+							"pm.test(\"New user is added\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const addedUsers = response.addedUsers;\r",
+							"    pm.expect(addedUsers.length).to.eql(1); // One user should be added\r",
+							"    pm.expect(addedUsers[0].username).to.eql(\"newUser\");\r",
+							"    pm.expect(addedUsers[0].email).to.eql(\"newuser@example.com\");\r",
+							"    pm.expect(addedUsers[0].role).to.eql(\"user\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n  {\r\n    \"id\": 4,\r\n    \"username\": \"newUser\",\r\n    \"email\": \"newuser@example.com\",\r\n    \"role\": \"user\",\r\n    \"active\": true\r\n  }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check if the new item has been added",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"New user added to the list\", function () {\r",
+							"    const users = pm.response.json();\r",
+							"\r",
+							"    // Define the new user object\r",
+							"    const newUser = {\r",
+							"        id: 4,\r",
+							"        username: \"newUser\",\r",
+							"        email: \"newuser@example.com\",\r",
+							"        role: \"user\",\r",
+							"        active: true\r",
+							"    };\r",
+							"\r",
+							"    // Check if the new user exists in the list of users\r",
+							"    const newUserExists = users.some(function (user) {\r",
+							"        return user.id === newUser.id &&\r",
+							"               user.username === newUser.username &&\r",
+							"               user.email === newUser.email &&\r",
+							"               user.role === newUser.role &&\r",
+							"               user.active === newUser.active;\r",
+							"    });\r",
+							"\r",
+							"    pm.expect(newUserExists).to.eql(true); // The new user should exist in the response\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "role",
+						"value": "admin",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3001/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change some data inside of a single item",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test if the status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Test if the message indicates the user was updated\r",
+							"pm.test(\"User updated successfully message\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.message).to.eql(\"User updated successfully\");\r",
+							"});\r",
+							"\r",
+							"// Test if the user is updated correctly\r",
+							"pm.test(\"User fields are updated\", function () {\r",
+							"    const updatedUser = pm.response.json().updatedUser;\r",
+							"    pm.expect(updatedUser.username).to.eql(\"Newly Updated Username\");\r",
+							"    pm.expect(updatedUser.email).to.eql(\"updateduser@example.com\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"Newly Updated Username\",\r\n  \"email\": \"updateduser@example.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/update/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"update",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check if the PUT request changes applied",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test if the status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "role",
+						"value": "admin",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3001/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a single item",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test if the status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Test if the message indicates the user was deleted\r",
+							"pm.test(\"User deleted successfully message\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.message).to.eql(\"User deleted successfully\");\r",
+							"    pm.expect(response.deletedUser.id).to.eql(4);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/delete/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"delete",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check if the item was deleted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User removed from the list after DELETE request\", function () {\r",
+							"    const users = pm.response.json();\r",
+							"\r",
+							"    // Define the user that was deleted (id: 4)\r",
+							"    const deletedUserId = 4;\r",
+							"\r",
+							"    // Check if the user with id 4 is not in the response\r",
+							"    const userExists = users.some(function (user) {\r",
+							"        return user.id === deletedUserId;\r",
+							"    });\r",
+							"\r",
+							"    // Assert that the user does not exist in the list anymore\r",
+							"    pm.expect(userExists).to.eql(false); // The user should not exist in the response\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "role",
+						"value": "admin",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3001",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001"
+				}
+			},
+			"response": []
+		}
+	]
+}
