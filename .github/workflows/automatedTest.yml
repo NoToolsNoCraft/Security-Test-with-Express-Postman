@@ -1,43 +1,41 @@
-name: Express App CI with Postman Tests
+name: Express App Test Workflow
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-
     services:
-      postgres:
-        image: postgres:latest
-        options: --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+      # No need for PostgreSQL service, just run Express
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'  # Choose your Node.js version
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
 
-    - name: Install dependencies
-      run: |
-        npm install
-        npm install -g newman # Install Newman to run Postman tests
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
 
-    - name: Start the Express app
-      run: |
-        nohup npm start &  # Start your Express app in the background
+      # Start the Express app
+      - name: Start Express app
+        run: |
+          nohup npm start & # Start the Express server in the background
 
-    - name: Wait for the app to start
-      run: sleep 10 # Wait for 10 seconds to allow the server to start
-
-    - name: Run Postman tests with Newman
-      run: |
-        newman run postman/your-collection.json -e postman/your-environment.json # Run your Postman tests
+      # Run Postman tests
+      - name: Run Postman tests
+        uses: actions/postman/run-postman-action@v2
+        with:
+          collection: path/to/your/postman_collection.json
+          environment: path/to/your/postman_environment.json
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}  # Set Postman API key from GitHub secrets
