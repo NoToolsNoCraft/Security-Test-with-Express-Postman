@@ -2,6 +2,8 @@
 
 This repository contains an **Express app** and an automated **API test suite** using **Postman** and **GitHub Actions**. The goal of this setup is to validate the functionality of an Express API by running Postman tests every time changes are made to the `main` branch of the repository.
 
+You may find a more detailed documentation here: https://notoolsnocraft.tech/express-server-source-postman-security-test/
+
 ## Overview
 
 The automated workflow performs the following steps whenever a commit is pushed to the `main` branch:
